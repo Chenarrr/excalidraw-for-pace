@@ -52,21 +52,9 @@ export class TopErrorBoundary extends React.Component<
     }
   }
 
-  private async createGithubIssue() {
-    let body = "";
-    try {
-      const templateStrFn = (
-        await import(
-          /* webpackChunkName: "bug-issue-template" */ "../bug-issue-template"
-        )
-      ).default;
-      body = encodeURIComponent(templateStrFn(this.state.sentryEventId));
-    } catch (error: any) {
-      console.error(error);
-    }
-
+  private createGithubIssue() {
     window.open(
-      `https://github.com/excalidraw/excalidraw/issues/new?body=${body}`,
+      "https://github.com/Chenarrr/excalidraw-for-pace/issues/new",
       "_blank",
       "noopener noreferrer",
     );
