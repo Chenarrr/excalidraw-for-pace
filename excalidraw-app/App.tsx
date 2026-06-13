@@ -5,7 +5,6 @@ import {
   useExcalidrawAPI,
   useEditorInterface,
 } from "@excalidraw/excalidraw";
-import { getDefaultAppState } from "@excalidraw/excalidraw/appState";
 import {
   CommandPalette,
   DEFAULT_CATEGORIES,
@@ -67,10 +66,7 @@ import { AppSidebar } from "./components/AppSidebar";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
 import { updateStaleImageStatuses } from "./data/FileManager";
 import { FileStatusStore } from "./data/fileStatusStore";
-import {
-  importFromLocalStorage,
-  importUsernameFromLocalStorage,
-} from "./data/localStorage";
+import { importFromLocalStorage } from "./data/localStorage";
 import {
   LibraryIndexedDBAdapter,
   LibraryLocalStorageMigrationAdapter,
@@ -227,11 +223,6 @@ const ExcalidrawWrapper = () => {
       if (!document.hidden) {
         if (isBrowserStorageStateNewer(STORAGE_KEYS.VERSION_DATA_STATE)) {
           const localDataState = importFromLocalStorage();
-          const username = importUsernameFromLocalStorage();
-          let langCode = getDefaultAppState().currentItemFontFamily;
-          if (username) {
-            setLangCode(langCode as unknown as string);
-          }
           excalidrawAPI.updateScene({
             elements: restoreElements(localDataState?.elements, null, {
               repairBindings: true,
