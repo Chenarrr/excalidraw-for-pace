@@ -451,3 +451,6 @@ export function useExcalidrawStateValue(
 export { _useOnAppStateChange as useOnExcalidrawStateChange };
 
 export { applyDarkModeFilter };
+
+export { TechLibrarySidebar } from "./components/TechLibrarySidebar";
+export type { TechLibrarySidebarProps } from "./components/TechLibrarySidebar";

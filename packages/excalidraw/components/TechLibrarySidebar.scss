@@ -1,0 +1,201 @@
+@use "../css/variables.module" as *;
+
+.excalidraw {
+  // ── Ensure tabpanel propagates height ──────────────────────────────────────
+  [role="tabpanel"] {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // ── Hide the built-in "Browse Libraries" button ───────────────────────────
+  .library-menu-browse-button,
+  [data-testid="browse-libraries"] {
+    display: none !important;
+  }
+
+  // ── Top-bottom: category list on top, items grid below ───────────────────
+  .lib-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // ── Full-width vertical category list ─────────────────────────────────────
+  .lib-strip {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 40%;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 6px 6px 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-border-color) transparent;
+    border-bottom: 1px solid var(--sidebar-border-color);
+  }
+
+  .lib-strip::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .lib-strip::-webkit-scrollbar-thumb {
+    background: var(--sidebar-border-color);
+    border-radius: 2px;
+  }
+
+  .lib-chip {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--color-gray-70);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    transition: background 80ms, color 80ms;
+  }
+
+  .lib-chip:hover {
+    background: var(--color-surface-mid);
+    color: var(--text-primary-color);
+  }
+
+  .lib-chip--active {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .lib-chip-count {
+    margin-left: auto;
+    padding-left: 8px;
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--color-gray-60);
+    flex-shrink: 0;
+  }
+
+  .lib-chip--active .lib-chip-count {
+    color: var(--color-primary);
+    opacity: 0.7;
+  }
+
+  // ── Bottom scrollable items area ──────────────────────────────────────────
+  .lib-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-border-color) transparent;
+  }
+
+  // ── Loading / empty state ─────────────────────────────────────────────────
+  .lib-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 1rem;
+    color: var(--color-gray-60);
+    font-size: 0.78rem;
+    min-height: 80px;
+  }
+
+  // ── Item grid — 3 columns ─────────────────────────────────────────────────
+  .lib-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .lib-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px 6px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0;
+    transition: background 80ms, border-color 80ms, transform 80ms;
+  }
+
+  .lib-item:hover {
+    background: var(--color-surface-mid);
+    border-color: var(--sidebar-border-color);
+  }
+
+  .lib-item:active {
+    background: var(--color-primary-light);
+    transform: scale(0.96);
+  }
+
+  .lib-cat-thumb,
+  .lib-item .lib-cat-thumb {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  // ── Skeleton while exportToSvg runs ──────────────────────────────────────
+  .lib-cat-shape-loading {
+    display: block;
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    background: var(--color-surface-mid);
+    flex-shrink: 0;
+    animation: lib-pulse 1.2s ease-in-out infinite;
+  }
+
+  .lib-item-name {
+    font-size: 0.6rem;
+    color: var(--color-gray-60);
+    text-align: center;
+    width: 100%;
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+}
+
+@keyframes lib-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
