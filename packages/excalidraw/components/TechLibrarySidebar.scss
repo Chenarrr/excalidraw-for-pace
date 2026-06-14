@@ -1,6 +1,12 @@
 @use "../css/variables.module" as *;
 
 .excalidraw {
+  // ── Bigger toolbar icons ──────────────────────────────────────────────────
+  --lg-button-size: 2.5rem;
+  --lg-icon-size: 1.25rem;
+  --default-button-size: 2.25rem;
+  --default-icon-size: 1.25rem;
+
   // ── Ensure tabpanel propagates height ──────────────────────────────────────
   [role="tabpanel"] {
     display: flex;
@@ -189,23 +195,28 @@
 
   .lib-cat-thumb,
   .lib-item .lib-cat-thumb {
-    width: 52px;
-    height: 52px;
+    width: 68px;
+    height: 68px;
     object-fit: contain;
     display: block;
     flex-shrink: 0;
-    background: #ffffff;
+    background: #f2f2f2;
     border-radius: 8px;
-    padding: 5px;
+    padding: 6px;
     box-sizing: border-box;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  &.theme--dark .lib-cat-thumb,
+  &.theme--dark .lib-item .lib-cat-thumb {
+    background: #e4e4e4;
   }
 
   // ── Skeleton while exportToSvg runs ──────────────────────────────────────
   .lib-cat-shape-loading {
     display: block;
-    width: 52px;
-    height: 52px;
+    width: 68px;
+    height: 68px;
     border-radius: 8px;
     background: var(--color-surface-mid);
     flex-shrink: 0;
@@ -213,11 +224,12 @@
   }
 
   .lib-item-name {
-    font-size: 0.6rem;
+    font-size: 0.68rem;
+    font-family: var(--ui-font);
     color: var(--color-gray-60);
     text-align: center;
     width: 100%;
-    max-width: 72px;
+    max-width: 84px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
