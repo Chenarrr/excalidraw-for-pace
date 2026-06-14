@@ -27,14 +27,30 @@ const CATEGORY_FILES = {
     "pub-arch-enterprise-integration-patterns.excalidrawlib",
     "pub-arch-mq.excalidrawlib",
     "pub-arch-UML-ER-library.excalidrawlib",
+    "pub-arch-database-engineering.excalidrawlib",
+    "pub-bpmn-shapes.excalidrawlib",
   ],
   network: [
     "pub-network-network-topology-icons.excalidrawlib",
     "pub-network-network-elements.excalidrawlib",
     "pub-network-racks-and-servers-components.excalidrawlib",
+    "pub-network-locations.excalidrawlib",
   ],
   cloud: [
     "real-cloud-brands.excalidrawlib",
+    "pub-cloud-design-patterns.excalidrawlib",
+  ],
+  aws: [
+    "pub-cloud-aws-architecture-icons.excalidrawlib",
+    "pub-cloud-aws-serverless.excalidrawlib",
+    "pub-cloud-aws-simple-icons.excalidrawlib",
+  ],
+  azure: [
+    "pub-cloud-azure-cloud-services.excalidrawlib",
+  ],
+  gcp: [
+    "pub-cloud-gcp-icons.excalidrawlib",
+    "pub-cloud-google-icons.excalidrawlib",
   ],
   devops: [
     "real-devops.excalidrawlib",
@@ -42,6 +58,13 @@ const CATEGORY_FILES = {
     "pub-devops-k8s-kubernetes-icons-set.excalidrawlib",
     "pub-devops-k8s-github-icons.excalidrawlib",
     "pub-devops-k8s-github-actions.excalidrawlib",
+    "pub-devops-technology-logos.excalidrawlib",
+    "pub-devops-icons.excalidrawlib",
+    "pub-devops-software-logos.excalidrawlib",
+  ],
+  ui: [
+    "pub-ui-lo-fi-wireframing-kit.excalidrawlib",
+    "pub-ui-html-input-elements.excalidrawlib",
   ],
   languages: [
     "real-languages.excalidrawlib",
@@ -66,16 +89,20 @@ const CATEGORY_FILES = {
 type RealCategoryId = keyof typeof CATEGORY_FILES;
 
 const LIBRARY_CATEGORIES: readonly { id: string; label: string }[] = [
-  { id: "favorites", label: "★ Favorites" },
-  { id: "arch",      label: "Architecture" },
-  { id: "network",   label: "Network"      },
-  { id: "cloud",     label: "Cloud"        },
-  { id: "devops",    label: "DevOps"       },
-  { id: "languages", label: "Languages"    },
-  { id: "frameworks",label: "Frameworks"   },
-  { id: "data",      label: "Data & ML"    },
-  { id: "mobile",    label: "Mobile"       },
-  { id: "security",  label: "Security"     },
+  { id: "favorites",  label: "★ Favorites"  },
+  { id: "arch",       label: "Architecture" },
+  { id: "network",    label: "Network"      },
+  { id: "cloud",      label: "Cloud"        },
+  { id: "aws",        label: "AWS"          },
+  { id: "azure",      label: "Azure"        },
+  { id: "gcp",        label: "GCP"          },
+  { id: "devops",     label: "DevOps"       },
+  { id: "ui",         label: "UI / Wireframes" },
+  { id: "languages",  label: "Languages"    },
+  { id: "frameworks", label: "Frameworks"   },
+  { id: "data",       label: "Data & ML"    },
+  { id: "mobile",     label: "Mobile"       },
+  { id: "security",   label: "Security"     },
 ];
 
 // ── Favorites persistence ─────────────────────────────────────────────────────
