@@ -459,7 +459,7 @@ function TechLibraryContent({
   return (
     <div className="lib-panel">
       {/* Vertical category list — top */}
-      <div className="lib-strip" role="tablist" aria-label="Library categories">
+      <div className="lib-strip" role="navigation" aria-label="Library categories">
         {LIBRARY_CATEGORIES.map((cat) => {
           const cacheKey = `${libraryBaseUrl}:${cat.id}`;
           const count =
@@ -484,7 +484,7 @@ function TechLibraryContent({
       </div>
 
       {/* Items grid — bottom */}
-      <div className="lib-content">
+      <div className="lib-content" onWheel={(e) => e.stopPropagation()}>
         {loading ? (
           <div className="lib-loading">Loading…</div>
         ) : !data || data.items.length === 0 ? (

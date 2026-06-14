@@ -31,6 +31,12 @@
     overflow: hidden;
   }
 
+  // ── Give sidebar-tabs-root a bounded height so lib-content can scroll ────
+  .sidebar-tabs-root {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
   // ── 2-column category grid ────────────────────────────────────────────────
   .lib-strip {
     display: grid !important;
