@@ -31,11 +31,10 @@
     overflow: hidden;
   }
 
-  // ── Full-width vertical category list ─────────────────────────────────────
+  // ── 2-column category grid ────────────────────────────────────────────────
   .lib-strip {
-    display: flex !important;
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     width: 100% !important;
     max-height: 260px;
     flex-shrink: 0;
@@ -64,16 +63,14 @@
     align-items: center;
     width: 100% !important;
     min-width: 0;
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
     text-align: left;
-    padding: 6px 10px;
+    padding: 5px 8px;
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: var(--color-gray-70);
-    font-size: 0.8rem;
-    font-weight: 500;
+    color: var(--text-primary-color);
+    font-size: 0.78rem;
+    font-weight: 600;
     line-height: 1;
     cursor: pointer;
     white-space: nowrap;
@@ -95,12 +92,7 @@
   }
 
   .lib-chip-count {
-    margin-left: auto;
-    padding-left: 8px;
-    font-size: 0.68rem;
-    font-weight: 400;
-    color: var(--color-gray-60);
-    flex-shrink: 0;
+    display: none;
   }
 
   .lib-chip--active .lib-chip-count {
@@ -110,11 +102,12 @@
 
   // ── Bottom scrollable items area ──────────────────────────────────────────
   .lib-content {
-    flex: 1;
+    flex: 1 !important;
     min-width: 0;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--sidebar-border-color) transparent;
   }
