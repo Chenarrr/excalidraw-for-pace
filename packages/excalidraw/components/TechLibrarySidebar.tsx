@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { CaptureUpdateAction } from "@excalidraw/element";
 import type { ExcalidrawElement } from "@excalidraw/element/types";
@@ -63,7 +63,10 @@ const CATEGORY_FILES = {
   ],
 } as const;
 
-const LIBRARY_CATEGORIES = [
+type RealCategoryId = keyof typeof CATEGORY_FILES;
+
+const LIBRARY_CATEGORIES: readonly { id: string; label: string }[] = [
+  { id: "favorites", label: "★ Favorites" },
   { id: "arch",      label: "Architecture" },
   { id: "network",   label: "Network"      },
   { id: "cloud",     label: "Cloud"        },
@@ -73,9 +76,25 @@ const LIBRARY_CATEGORIES = [
   { id: "data",      label: "Data & ML"    },
   { id: "mobile",    label: "Mobile"       },
   { id: "security",  label: "Security"     },
-] as const;
+];
 
-type CategoryId = keyof typeof CATEGORY_FILES;
+// ── Favorites persistence ─────────────────────────────────────────────────────
+
+const FAVORITES_KEY = "paceboard-lib-favorites";
+
+function loadFavoriteIds(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? "[]") as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveFavoriteIds(ids: Set<string>) {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...ids]));
+  } catch { /* storage full — best effort */ }
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -109,12 +128,14 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 const categoryCache = new Map<string, CategoryData>();
 
 async function loadCategory(
-  id: CategoryId,
-  filenames: readonly string[],
+  id: string,
   baseUrl: string,
 ): Promise<CategoryData> {
   const cacheKey = `${baseUrl}:${id}`;
   if (categoryCache.has(cacheKey)) return categoryCache.get(cacheKey)!;
+
+  const filenames = CATEGORY_FILES[id as RealCategoryId];
+  if (!filenames) return { items: [], files: {} };
 
   const results = await Promise.allSettled(
     [...filenames].map((f) =>
@@ -155,9 +176,7 @@ async function loadCategory(
       for (const el of item.elements) {
         const asImg = el as { type: string; fileId?: string };
         if (asImg.type === "image" && asImg.fileId) {
-          const f = (data.files as Record<string, RawFile> | undefined)?.[
-            asImg.fileId
-          ];
+          const f = (data.files as Record<string, RawFile> | undefined)?.[asImg.fileId];
           if (f?.dataURL) {
             imageSrc = f.dataURL;
             hasImage = true;
@@ -179,6 +198,19 @@ async function loadCategory(
   const result: CategoryData = { items, files: rawFiles };
   categoryCache.set(cacheKey, result);
   return result;
+}
+
+// Virtual favorites category — scan cached categories for matching IDs
+function buildFavoritesData(favIds: Set<string>): CategoryData {
+  const items: ParsedItem[] = [];
+  const files: Record<string, RawFile> = {};
+  categoryCache.forEach((data) => {
+    Object.assign(files, data.files);
+    data.items.forEach((item) => {
+      if (favIds.has(item.id)) items.push(item);
+    });
+  });
+  return { items, files };
 }
 
 // ── Thumbnail via exportToSvg ─────────────────────────────────────────────────
@@ -311,6 +343,8 @@ const categoryCounts = new Map<string, number>();
 
 // ── Category strip + grid ─────────────────────────────────────────────────────
 
+const ITEMS_PER_BATCH = 20;
+
 function TechLibraryContent({
   apiRef,
   libraryBaseUrl,
@@ -318,35 +352,61 @@ function TechLibraryContent({
   apiRef: React.RefObject<ExcalidrawImperativeAPI | null>;
   libraryBaseUrl: string;
 }) {
-  const [activeId, setActiveId] = useState<CategoryId>("arch");
+  const [activeId, setActiveId] = useState<string>("arch");
   const [data, setData] = useState<CategoryData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [counts, setCounts] = useState<Map<string, number>>(
-    new Map(categoryCounts),
-  );
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_BATCH);
+  const [counts, setCounts] = useState<Map<string, number>>(new Map(categoryCounts));
+  const [favIds, setFavIds] = useState<Set<string>>(() => loadFavoriteIds());
+  const [, startTransition] = useTransition();
   const loadedRef = useRef<string | null>(null);
 
-  const activeCat = LIBRARY_CATEGORIES.find((c) => c.id === activeId)!;
+  // Pre-load first real category on mount for instant feel
+  useEffect(() => {
+    void loadCategory("arch", libraryBaseUrl);
+  }, [libraryBaseUrl]);
 
   useEffect(() => {
     const key = `${libraryBaseUrl}:${activeId}`;
     if (loadedRef.current === key) return;
     loadedRef.current = key;
+    setVisibleCount(ITEMS_PER_BATCH);
+
+    if (activeId === "favorites") {
+      const favData = buildFavoritesData(favIds);
+      setData(favData);
+      setLoading(false);
+      return;
+    }
+
     setData(null);
     setLoading(true);
-    void loadCategory(
-      activeId,
-      CATEGORY_FILES[activeId],
-      libraryBaseUrl,
-    ).then((result) => {
-      setData(result);
-      setLoading(false);
-      if (!categoryCounts.has(key)) {
-        categoryCounts.set(key, result.items.length);
-        setCounts(new Map(categoryCounts));
-      }
+    void loadCategory(activeId, libraryBaseUrl).then((result) => {
+      startTransition(() => {
+        setData(result);
+        setLoading(false);
+        const cacheKey = `${libraryBaseUrl}:${activeId}`;
+        if (!categoryCounts.has(cacheKey)) {
+          categoryCounts.set(cacheKey, result.items.length);
+          setCounts(new Map(categoryCounts));
+        }
+      });
     });
-  }, [activeId, libraryBaseUrl, activeCat]);
+  }, [activeId, libraryBaseUrl, favIds]);
+
+  const toggleFavorite = useCallback((itemId: string) => {
+    setFavIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      saveFavoriteIds(next);
+      // If viewing favorites, refresh the data immediately
+      if (activeId === "favorites") {
+        loadedRef.current = null;
+      }
+      return next;
+    });
+  }, [activeId]);
 
   const handleInsert = useCallback(
     (item: ParsedItem, itemData: CategoryData) => {
@@ -356,20 +416,31 @@ function TechLibraryContent({
     [apiRef],
   );
 
+  const handleCategoryClick = useCallback((id: string) => {
+    loadedRef.current = null;
+    setActiveId(id);
+  }, []);
+
+  const visibleItems = data?.items.slice(0, visibleCount) ?? [];
+  const hasMore = data ? visibleCount < data.items.length : false;
+
   return (
     <div className="lib-panel">
       {/* Vertical category list — top */}
       <div className="lib-strip" role="tablist" aria-label="Library categories">
         {LIBRARY_CATEGORIES.map((cat) => {
           const cacheKey = `${libraryBaseUrl}:${cat.id}`;
-          const count = counts.get(cacheKey);
+          const count =
+            cat.id === "favorites"
+              ? favIds.size > 0 ? favIds.size : undefined
+              : counts.get(cacheKey);
           return (
             <button
               key={cat.id}
               role="tab"
               aria-selected={cat.id === activeId}
-              className={`lib-chip${cat.id === activeId ? " lib-chip--active" : ""}`}
-              onClick={() => setActiveId(cat.id)}
+              className={`lib-chip${cat.id === activeId ? " lib-chip--active" : ""}${cat.id === "favorites" ? " lib-chip--favorites" : ""}`}
+              onClick={() => handleCategoryClick(cat.id)}
             >
               {cat.label}
               {count !== undefined && (
@@ -385,21 +456,41 @@ function TechLibraryContent({
         {loading ? (
           <div className="lib-loading">Loading…</div>
         ) : !data || data.items.length === 0 ? (
-          <div className="lib-loading">No items</div>
-        ) : (
-          <div className="lib-grid">
-            {data.items.map((item) => (
-              <button
-                key={item.id}
-                className="lib-item"
-                title={item.name}
-                onClick={() => handleInsert(item, data)}
-              >
-                <LibraryItemThumbnail item={item} files={data.files} />
-                <span className="lib-item-name">{item.name}</span>
-              </button>
-            ))}
+          <div className="lib-loading">
+            {activeId === "favorites" ? "Star items to add favorites" : "No items"}
           </div>
+        ) : (
+          <>
+            <div className="lib-grid">
+              {visibleItems.map((item) => (
+                <button
+                  key={item.id}
+                  className="lib-item"
+                  title={item.name}
+                  onClick={() => handleInsert(item, data)}
+                >
+                  <LibraryItemThumbnail item={item} files={data.files} />
+                  <span className="lib-item-name">{item.name}</span>
+                  <button
+                    className={`lib-star${favIds.has(item.id) ? " lib-star--on" : ""}`}
+                    title={favIds.has(item.id) ? "Remove from favorites" : "Add to favorites"}
+                    aria-label={favIds.has(item.id) ? "Remove from favorites" : "Add to favorites"}
+                    onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
+                  >
+                    ★
+                  </button>
+                </button>
+              ))}
+            </div>
+            {hasMore && (
+              <button
+                className="lib-load-more"
+                onClick={() => setVisibleCount((n) => n + ITEMS_PER_BATCH)}
+              >
+                Show more ({data.items.length - visibleCount} remaining)
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

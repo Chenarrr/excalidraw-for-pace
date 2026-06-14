@@ -454,3 +454,17 @@ export { applyDarkModeFilter };
 
 export { TechLibrarySidebar } from "./components/TechLibrarySidebar";
 export type { TechLibrarySidebarProps } from "./components/TechLibrarySidebar";
+
+export { PaceMainMenu } from "./components/PaceMainMenu";
+
+export const PACE_UI_OPTIONS = {
+  canvasActions: {
+    changeViewBackgroundColor: true,
+    clearCanvas: false,
+    export: false,
+    loadScene: false,
+    saveAsImage: false,
+    saveToActiveFile: false,
+    toggleTheme: false,
+  },
+} as const;

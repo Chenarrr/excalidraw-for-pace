@@ -128,7 +128,36 @@
     padding: 6px;
   }
 
+  // ── Hide Excalidraw social, help, and branding chrome ────────────────────
+  .layer-ui__footer,
+  .help-icon,
+  .encrypted-icon,
+  .ExcalidrawLogo,
+  .welcome-screen-decor,
+  .welcome-screen-menu-hint,
+  .welcome-screen-help-hint,
+  .welcome-screen-toolbar-hint,
+  a[href*="github"],
+  a[href*="discord"],
+  a[href*="plus.excalidraw"],
+  a[href*="excalidraw.com/plus"],
+  [aria-label*="GitHub"],
+  [aria-label*="Discord"],
+  [aria-label*="AI"],
+  [aria-label*="Follow"],
+  [aria-label*="Twitter"],
+  [data-testid*="social"],
+  .dropdown-menu-group-title,
+  .DefaultItems__Socials,
+  [title*="GitHub"],
+  [title*="Discord"],
+  [title*="AI"],
+  [title*="Follow"] {
+    display: none !important;
+  }
+
   .lib-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -187,6 +216,56 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.2;
+  }
+
+  // ── Star / favorite button ────────────────────────────────────────────────
+  .lib-star {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.65rem;
+    color: var(--color-gray-30);
+    opacity: 0;
+    transition: opacity 80ms, color 80ms;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lib-item:hover .lib-star,
+  .lib-star--on {
+    opacity: 1;
+  }
+
+  .lib-star--on {
+    color: var(--color-primary);
+  }
+
+  // ── Show more button ──────────────────────────────────────────────────────
+  .lib-load-more {
+    display: block;
+    width: calc(100% - 12px);
+    margin: 4px 6px 8px;
+    padding: 6px;
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-gray-70);
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background 80ms;
+  }
+
+  .lib-load-more:hover {
+    background: var(--color-surface-mid);
   }
 }
 
