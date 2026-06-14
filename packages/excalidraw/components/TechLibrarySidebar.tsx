@@ -145,6 +145,7 @@ async function loadCategory(
 
   const items: ParsedItem[] = [];
   const rawFiles: Record<string, RawFile> = {};
+  const seenIds = new Set<string>();
 
   results.forEach((result) => {
     if (result.status !== "fulfilled" || !result.value) return;
@@ -170,6 +171,10 @@ async function loadCategory(
     }
 
     rawItems.forEach((item, idx) => {
+      const itemId = item.id ?? `orbit-${idx}`;
+      if (seenIds.has(itemId)) return;
+      seenIds.add(itemId);
+
       let imageSrc: string | null = null;
       let hasImage = false;
 
@@ -186,7 +191,7 @@ async function loadCategory(
       }
 
       items.push({
-        id: item.id ?? `orbit-${idx}`,
+        id: itemId,
         name: item.name ?? `Item ${idx + 1}`,
         elements: item.elements,
         imageSrc,
